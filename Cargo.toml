@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-leknet = { path = "../leknet"}
+leknet = "0.1.0"
 stereokit-bevy = { path = "../stereokit-bevy", features = ["networking"]}
 stereokit = { path = "../stereokit-rs", features = ["bevy_ecs", "bevy_reflect"]}
 bevy_app = "0.10.1"

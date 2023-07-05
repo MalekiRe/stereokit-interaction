@@ -63,8 +63,7 @@ fn hand_grab_interaction_2(
         // let temp = sk.input_hand(Handed::Right).palm.position - global_transform.translation();
         // let diff = temp - transform_difference.0.translation;
         transform.translation = sk.input_hand(Handed::Right).palm.position - transform_difference.0.translation;
-        /*transform.rotation *=
-            global_transform.compute_transform().rotation - transform_difference.0.rotation;*/
+        transform.rotation = sk.input_hand(Handed::Right).palm.orientation * transform_difference.0.rotation.inverse();
     }
 }
 
@@ -75,18 +74,23 @@ fn hand_grab_interaction(
 ) {
     for (entity, model, global_transform) in query.iter() {
         if sk.input_hand(Handed::Right).pinch_activation >= 0.5 {
+
+            let mut bounds = sk.model_get_bounds(model);
+            bounds.center = global_transform.compute_transform().transform_point(bounds.center);
+            bounds.dimensions *= global_transform.compute_transform().scale;
+
             if bounds_point_contains(
-                bounds_transform(sk.model_get_bounds(model), global_transform.compute_matrix().inverse()),
+                bounds,
+                //bounds_transform(sk.model_get_bounds(model), global_transform.compute_matrix()),
                 sk.input_hand(Handed::Right).palm.position,
             ) {
-                println!("contains!");
                 let diff = Transform::from_scale(Vec3::splat(1.0))
                     .with_translation(
                         sk.input_hand(Handed::Right).palm.position - global_transform.translation(),
                     )
                     .with_rotation(
-                        sk.input_hand(Handed::Right).palm.orientation
-                            - global_transform.compute_transform().rotation,
+                        sk.input_hand(Handed::Right).palm.orientation *
+                            global_transform.compute_transform().rotation.inverse(),
                     );
                 commands.entity(entity).insert(TransformDifference(diff));
             }
